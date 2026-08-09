@@ -1,1 +1,1 @@
-Student registration pass for Jabalpur Engineering College with a live pass-style preview.
+A student registration form that doubles as a live boarding pass — fill it in, watch your ticket build itself.

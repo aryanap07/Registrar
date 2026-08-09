@@ -1,1 +1,1 @@
-A student registration form that looks and fills in like a boarding pass.
+A student registration form service that looks and fills in like a boarding pass.

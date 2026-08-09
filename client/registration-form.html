@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jabalpur Engineering College — Student Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment: #ECE4D2;
+    --parchment-light: #F7F2E6;
+    --card: #FFFDF8;
+    --ink: #24301F;
+    --ink-soft: #55604D;
+    --ink-faint: #8B9280;
+    --moss: #3F5C36;
+    --moss-dark: #2E4527;
+    --rust: #B4602B;
+    --line: #CDC2A2;
+    --line-strong: #B7A97F;
+    --error: #A6402C;
+    --radius: 4px;
+    --shadow: 0 30px 60px -25px rgba(36, 48, 31, 0.35);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    background-color: var(--parchment);
+    background-image:
+      repeating-radial-gradient(circle at 8% 12%, transparent 0px, transparent 30px, rgba(183,169,127,0.35) 31px, transparent 32px, transparent 62px, rgba(183,169,127,0.22) 63px, transparent 64px),
+      repeating-radial-gradient(circle at 96% 88%, transparent 0px, transparent 40px, rgba(183,169,127,0.30) 41px, transparent 42px, transparent 84px, rgba(183,169,127,0.18) 85px, transparent 86px),
+      repeating-radial-gradient(circle at 92% 6%, transparent 0px, transparent 22px, rgba(183,169,127,0.25) 23px, transparent 24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+
+  .wrap{
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .masthead{
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .masthead .eyebrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--moss-dark);
+    font-weight: 600;
+  }
+
+  .masthead .eyebrow::before,
+  .masthead .eyebrow::after{
+    content: "◦ ◦ ◦";
+    color: var(--line-strong);
+    margin: 0 12px;
+    letter-spacing: 4px;
+    font-size: 10px;
+  }
+
+  .pass{
+    display: grid;
+    grid-template-columns: 1fr 236px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--line);
+  }
+
+  .pass::before{
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(36,48,31,0.08);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  .main-panel{
+    padding: 44px 48px 40px;
+  }
+
+  .brand-row{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 16px;
+  }
+
+  .brand-mark{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: 34px;
+    line-height: 1.08;
+    margin: 4px 0 6px;
+    color: var(--ink);
+  }
+
+  .subhead{
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    margin: 0 0 32px;
+    max-width: 46ch;
+  }
+
+  form{ display: block; }
+
+  .row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+
+  .field{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+    position: relative;
+  }
+
+  label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  label .req{
+    color: var(--rust);
+    font-size: 11px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  select{
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--parchment-light);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px 14px;
+    width: 100%;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+
+  input::placeholder{ color: var(--ink-faint); }
+
+  input:hover, select:hover{ border-color: var(--line-strong); }
+
+  input:focus, select:focus{
+    outline: none;
+    border-color: var(--moss);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(63,92,54,0.15);
+  }
+
+  .field.invalid input{
+    border-color: var(--error);
+    background: #FBF1EE;
+  }
+
+  .field.invalid select{
+    border-color: var(--error);
+  }
+
+  .error-msg{
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 6px;
+    display: none;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .field.invalid .error-msg{ display: block; }
+
+  select{
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1L6 6.5L11 1' stroke='%2355604D' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+
+  select:invalid{ color: var(--ink-faint); }
+
+  .segmented{
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--parchment-light);
+    width: fit-content;
+  }
+
+  .segmented input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .segmented label{
+    margin: 0;
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+    user-select: none;
+  }
+
+  .segmented label:not(:last-child){
+    border-right: 1px solid var(--line);
+  }
+
+  .segmented input:checked + label{
+    background: var(--moss);
+    color: #fff;
+  }
+
+  .segmented input:focus-visible + label{
+    outline: 2px solid var(--moss-dark);
+    outline-offset: -2px;
+  }
+
+  .submit-row{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  button[type="submit"]{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
+    background: var(--moss);
+    border: none;
+    border-radius: 3px;
+    padding: 15px 30px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+
+  button[type="submit"]:hover{ background: var(--moss-dark); }
+  button[type="submit"]:active{ transform: translateY(1px); }
+  button[type="submit"]:disabled{ background: var(--ink-faint); cursor: default; }
+
+  button[type="submit"] svg{
+    width: 14px; height: 14px;
+    transition: transform .2s ease;
+  }
+  button[type="submit"]:hover svg{ transform: translateX(3px); }
+
+  .form-status{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .form-status.success{ color: var(--moss-dark); }
+  .form-status.error{ color: var(--error); }
+
+  .perforation{
+    position: relative;
+    width: 0;
+    background: repeating-linear-gradient(to bottom, var(--line-strong) 0 8px, transparent 8px 16px);
+    background-size: 1px 16px;
+    background-repeat: repeat-y;
+    background-position: center;
+  }
+
+  .perforation::before,
+  .perforation::after{
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    background: var(--parchment);
+    border-radius: 50%;
+  }
+  .perforation::before{ top: -11px; }
+  .perforation::after{ bottom: -11px; }
+
+  .stub{
+    background: var(--moss);
+    color: #EFEADA;
+    padding: 32px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 14px);
+  }
+
+  .stub-top .stub-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(239,234,218,0.6);
+    margin-bottom: 4px;
+  }
+
+  .stub-top .stub-name{
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.15;
+    min-height: 28px;
+    word-break: break-word;
+  }
+
+  .stub-top .stub-name.placeholder{
+    color: rgba(239,234,218,0.35);
+    font-weight: 500;
+  }
+
+  .stub-mid{
+    margin: 22px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .stub-item .stub-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(239,234,218,0.55);
+    margin-bottom: 3px;
+  }
+
+  .stub-item .stub-value{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    color: #EFEADA;
+  }
+
+  .stub-item .stub-value + .stub-value{
+    margin-top: 4px;
+  }
+
+  .stub-code{
+    border-top: 1px dashed rgba(239,234,218,0.35);
+    padding-top: 16px;
+  }
+
+  .stub-code .stub-value{
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .barcode{
+    height: 34px;
+    margin-top: 14px;
+    background: repeating-linear-gradient(
+      90deg,
+      #EFEADA 0px, #EFEADA 2px,
+      transparent 2px, transparent 3px,
+      #EFEADA 3px, #EFEADA 4px,
+      transparent 4px, transparent 7px,
+      #EFEADA 7px, #EFEADA 9px,
+      transparent 9px, transparent 10px
+    );
+    opacity: 0.85;
+    border-radius: 1px;
+  }
+
+  .success-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(36,48,31,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    z-index: 10;
+  }
+
+  .success-overlay.visible{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .success-card{
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transform: translateY(10px);
+    transition: transform .25s ease;
+  }
+
+  .success-overlay.visible .success-card{ transform: translateY(0); }
+
+  .success-card .stamp{
+    width: 56px; height: 56px;
+    margin: 0 auto 18px;
+    border: 2px solid var(--moss);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--moss);
+  }
+
+  .success-card h2{
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+
+  .success-card p{
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 22px;
+  }
+
+  .success-card button{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    padding: 10px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .success-card button:hover{ background: var(--parchment-light); }
+
+  @media (max-width: 720px){
+    .pass{
+      grid-template-columns: 1fr;
+    }
+    .main-panel{ padding: 34px 26px 30px; }
+    .row{ grid-template-columns: 1fr; gap: 0; }
+    h1{ font-size: 28px; }
+
+    .perforation{
+      width: auto;
+      height: 0;
+      background: repeating-linear-gradient(to right, var(--line-strong) 0 8px, transparent 8px 16px);
+      background-size: 16px 1px;
+      background-repeat: repeat-x;
+      background-position: center;
+    }
+    .perforation::before{ top: 50%; left: -11px; transform: translateY(-50%); }
+    .perforation::after{ top: 50%; left: auto; right: -11px; bottom: auto; transform: translateY(-50%); }
+
+    .stub{ padding: 26px 26px 30px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; scroll-behavior: auto !important; }
+  }
+
+  :focus-visible{
+    outline: 2px solid var(--moss-dark);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <span class="eyebrow">Welcome</span>
+  </div>
+
+  <div class="pass">
+    <div class="main-panel">
+      <div class="brand-row">
+        <span class="brand-mark">JABALPUR ENGINEERING COLLEGE</span>
+        <span class="brand-mark" id="today-date"></span>
+      </div>
+      <h1>Student Registration</h1>
+      <p class="subhead">Fill in the form below to register. Your details will appear on the pass as you type.</p>
+
+      <form id="reg-form" novalidate action="/api/register" method="POST">
+
+        <div class="row">
+          <div class="field" data-field="firstName">
+            <label for="firstName">First name <span class="req">*</span></label>
+            <input type="text" id="firstName" name="firstName" autocomplete="given-name" required />
+            <span class="error-msg">Enter your first name.</span>
+          </div>
+          <div class="field" data-field="lastName">
+            <label for="lastName">Last name <span class="req">*</span></label>
+            <input type="text" id="lastName" name="lastName" autocomplete="family-name" required />
+            <span class="error-msg">Enter your last name.</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" data-field="dob">
+            <label for="dob">Date of birth <span class="req">*</span></label>
+            <input type="date" id="dob" name="dob" required />
+            <span class="error-msg">Enter your date of birth.</span>
+          </div>
+          <div class="field" data-field="gender">
+            <label>Gender <span class="req">*</span></label>
+            <div class="segmented" role="radiogroup" aria-label="Gender">
+              <input type="radio" id="gender-m" name="gender" value="male" checked />
+              <label for="gender-m">Male</label>
+              <input type="radio" id="gender-f" name="gender" value="female" />
+              <label for="gender-f">Female</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" data-field="email">
+            <label for="email">Email <span class="req">*</span></label>
+            <input type="email" id="email" name="email" autocomplete="email" required />
+            <span class="error-msg">Enter a valid email address.</span>
+          </div>
+          <div class="field" data-field="phone">
+            <label for="phone">Phone number <span class="req">*</span></label>
+            <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="\d{10}" maxlength="10" autocomplete="tel" required />
+            <span class="error-msg">Enter a valid 10-digit phone number.</span>
+          </div>
+        </div>
+
+        <div class="field" data-field="branch">
+          <label for="branch">Branch <span class="req">*</span></label>
+          <select id="branch" name="branch" required>
+            <option value="" disabled selected>Choose a branch</option>
+            <option value="AI">AI — Artificial Intelligence &amp; Data Science</option>
+            <option value="CS">CS — Computer Science and Engineering</option>
+            <option value="IT">IT — Information Technology</option>
+            <option value="EC">EC — Electronics &amp; Telecommunication</option>
+            <option value="EE">EE — Electrical Engineering</option>
+            <option value="CE">CE — Civil Engineering</option>
+            <option value="ME">ME — Mechanical Engineering</option>
+            <option value="MT">MT — Mechatronics Engineering</option>
+            <option value="IP">IP — Industrial Production</option>
+          </select>
+          <span class="error-msg">Select a branch.</span>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" id="submit-btn">
+            Register
+            <svg viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L7.5 1.5M13 7L7.5 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="form-status" id="form-status"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="perforation" aria-hidden="true"></div>
+
+    <div class="stub">
+      <div class="stub-top">
+        <div class="stub-label">Registered to</div>
+        <div class="stub-name placeholder" id="stub-name">Your name</div>
+      </div>
+
+      <div class="stub-mid">
+        <div class="stub-item">
+          <div class="stub-label">Branch</div>
+          <div class="stub-value" id="stub-branch">—</div>
+        </div>
+        <div class="stub-item">
+          <div class="stub-label">Contact</div>
+          <div class="stub-value" id="stub-contact-email">—</div>
+          <div class="stub-value" id="stub-contact-phone">—</div>
+        </div>
+      </div>
+
+      <div class="stub-code">
+        <div class="stub-label">Confirmation code</div>
+        <div class="stub-value" id="stub-code">JEC-000000</div>
+        <div class="barcode" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <div class="stamp">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>You're registered</h2>
+    <p id="success-detail">Your registration has been received. A confirmation has been sent to your email.</p>
+    <button type="button" id="success-close">Close</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('reg-form');
+  const statusEl = document.getElementById('form-status');
+  const submitBtn = document.getElementById('submit-btn');
+
+  const stubName = document.getElementById('stub-name');
+  const stubBranch = document.getElementById('stub-branch');
+  const stubContactEmail = document.getElementById('stub-contact-email');
+  const stubContactPhone = document.getElementById('stub-contact-phone');
+  const stubCode = document.getElementById('stub-code');
+
+  const branchLabels = {
+    AI: 'Artificial Intelligence & Data Science',
+    CS: 'Computer Science and Engineering',
+    IT: 'Information Technology',
+    EC: 'Electronics & Telecommunication',
+    EE: 'Electrical Engineering',
+    CE: 'Civil Engineering',
+    ME: 'Mechanical Engineering',
+    MT: 'Mechatronics Engineering',
+    IP: 'Industrial Production'
+  };
+
+  const todayEl = document.getElementById('today-date');
+  const today = new Date();
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  todayEl.textContent = String(today.getDate()).padStart(2,'0') + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+
+  function readCounter(){
+    try{
+      return parseInt(localStorage.getItem('jecRegCounter') || '0', 10);
+    }catch(e){
+      return window.__jecRegCounter || 0;
+    }
+  }
+
+  function writeCounter(value){
+    try{
+      localStorage.setItem('jecRegCounter', String(value));
+    }catch(e){
+      window.__jecRegCounter = value;
+    }
+  }
+
+  function peekCode(){
+    return 'JEC-' + String(readCounter() + 1).padStart(6, '0');
+  }
+
+  function commitCode(){
+    const next = readCounter() + 1;
+    writeCounter(next);
+    return 'JEC-' + String(next).padStart(6, '0');
+  }
+
+  let currentCode = peekCode();
+  stubCode.textContent = currentCode;
+
+  form.phone.addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  function updateStub(){
+    const first = form.firstName.value.trim();
+    const last = form.lastName.value.trim();
+    const fullName = [first, last].filter(Boolean).join(' ');
+
+    if(fullName){
+      stubName.textContent = fullName;
+      stubName.classList.remove('placeholder');
+    } else {
+      stubName.textContent = 'Your name';
+      stubName.classList.add('placeholder');
+    }
+
+    const branchVal = form.branch.value;
+    stubBranch.textContent = branchLabels[branchVal] || '—';
+
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+    stubContactEmail.textContent = email || '—';
+    stubContactPhone.textContent = phone || '—';
+  }
+
+  form.addEventListener('input', updateStub);
+  form.addEventListener('change', updateStub);
+
+  function setFieldValid(field){
+    field.classList.remove('invalid');
+  }
+  function setFieldInvalid(field){
+    field.classList.add('invalid');
+  }
+
+  function validateField(el){
+    const field = el.closest('.field');
+    if(!field) return true;
+    let valid = el.checkValidity();
+    if(valid){ setFieldValid(field); } else { setFieldInvalid(field); }
+    return valid;
+  }
+
+  ['firstName','lastName','dob','email','phone'].forEach(id => {
+    const el = form[id];
+    el.addEventListener('blur', () => validateField(el));
+  });
+  form.branch.addEventListener('blur', () => validateField(form.branch));
+
+  function validateAll(){
+    let allValid = true;
+    ['firstName','lastName','dob','email','phone','branch'].forEach(id => {
+      const el = form[id];
+      if(!validateField(el)) allValid = false;
+    });
+    return allValid;
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    if(!validateAll()){
+      statusEl.textContent = 'Check the highlighted fields.';
+      statusEl.className = 'form-status error';
+      const firstInvalid = form.querySelector('.field.invalid input, .field.invalid select');
+      if(firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    statusEl.textContent = 'Registering…';
+    statusEl.className = 'form-status';
+    submitBtn.disabled = true;
+
+    currentCode = commitCode();
+    stubCode.textContent = currentCode;
+
+    const payload = {
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
+      dob: form.dob.value,
+      gender: form.gender.value,
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      branch: form.branch.value,
+      confirmationCode: currentCode
+    };
+
+    setTimeout(function(){
+      submitBtn.disabled = false;
+      statusEl.textContent = '';
+      showSuccess(payload);
+    }, 700);
+  });
+
+  function showSuccess(payload){
+    const overlay = document.getElementById('success-overlay');
+    const detail = document.getElementById('success-detail');
+    detail.textContent = 'Registration ' + payload.confirmationCode + ' received for ' + payload.firstName + ' ' + payload.lastName + '. A confirmation has been sent to ' + (payload.email || 'your contact details') + '.';
+    overlay.classList.add('visible');
+  }
+
+  document.getElementById('success-close').addEventListener('click', function(){
+    document.getElementById('success-overlay').classList.remove('visible');
+    form.reset();
+    currentCode = peekCode();
+    stubCode.textContent = currentCode;
+    updateStub();
+    form.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
+  });
+
+  updateStub();
+})();
+</script>
+
+</body>
+</html>

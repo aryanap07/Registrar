@@ -1,1 +1,1 @@
-A student registration form that doubles as a live boarding pass — fill it in, watch your ticket build itself.
+This project offers a simple, elegant way for students to register — presented as an interactive pass that builds itself as you fill in your details.

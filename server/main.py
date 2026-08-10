@@ -3,10 +3,13 @@ from contextlib import asynccontextmanager
 from datetime import date
 from enum import Enum
 from typing import Annotated, List
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field as SQLField, Relationship, Session, SQLModel, create_engine, select
@@ -128,7 +131,7 @@ def get_session():
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
-@app.get("/")
+@app.get("/health")
 def health():
     return {"status": "ok", "service": "JEC Registration API"}
 
@@ -180,17 +183,11 @@ def create_registration(payload: RegistrationIn, session: SessionDep):
     return to_out(reg)
 
 
-@app.get("/api/registrations", response_model=List[RegistrationOut])
-def list_registrations(session: SessionDep):
-    regs = session.exec(select(Registration)).all()
-    return [to_out(r) for r in regs]
+BASE_DIR = Path(__file__).resolve().parent.parent
+CLIENT_DIR = BASE_DIR / "client"
 
-
-@app.get("/api/registrations/{confirmation_code}", response_model=RegistrationOut)
-def get_registration(confirmation_code: str, session: SessionDep):
-    reg = session.exec(
-        select(Registration).where(Registration.confirmation_code == confirmation_code)
-    ).first()
-    if not reg:
-        raise HTTPException(404, "Registration not found")
-    return to_out(reg)
+app.mount(
+    "/",
+    StaticFiles(directory=CLIENT_DIR, html=True),
+    name="client",
+)

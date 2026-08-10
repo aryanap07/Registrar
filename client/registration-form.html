@@ -632,7 +632,7 @@
       <h1>Student Registration</h1>
       <p class="subhead">Fill in the form below to register. Your details will appear on the pass as you type.</p>
 
-      <form id="reg-form" novalidate action="/api/register" method="POST">
+      <form id="reg-form" novalidate>
 
         <div class="row">
           <div class="field" data-field="firstName">
@@ -756,6 +756,8 @@
 
 <script>
 (function(){
+  const API_BASE = window.JEC_API_BASE || 'http://localhost:8000';
+
   const form = document.getElementById('reg-form');
   const statusEl = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn');
@@ -784,34 +786,7 @@
   const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   todayEl.textContent = String(today.getDate()).padStart(2,'0') + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
 
-  function readCounter(){
-    try{
-      return parseInt(localStorage.getItem('jecRegCounter') || '0', 10);
-    }catch(e){
-      return window.__jecRegCounter || 0;
-    }
-  }
-
-  function writeCounter(value){
-    try{
-      localStorage.setItem('jecRegCounter', String(value));
-    }catch(e){
-      window.__jecRegCounter = value;
-    }
-  }
-
-  function peekCode(){
-    return 'JEC-' + String(readCounter() + 1).padStart(6, '0');
-  }
-
-  function commitCode(){
-    const next = readCounter() + 1;
-    writeCounter(next);
-    return 'JEC-' + String(next).padStart(6, '0');
-  }
-
-  let currentCode = peekCode();
-  stubCode.textContent = currentCode;
+  stubCode.textContent = 'Pending';
 
   form.phone.addEventListener('input', function(){
     this.value = this.value.replace(/\D/g, '').slice(0, 10);
@@ -946,6 +921,19 @@
     return allValid;
   }
 
+  function extractErrorMessage(status, body){
+    if(status === 409 && body && typeof body.detail === 'string'){
+      return body.detail;
+    }
+    if(status === 422 && body && Array.isArray(body.detail)){
+      return body.detail.map(function(e){ return e.msg; }).join(' ');
+    }
+    if(body && typeof body.detail === 'string'){
+      return body.detail;
+    }
+    return 'Something went wrong. Please try again.';
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
 
@@ -961,9 +949,6 @@
     statusEl.className = 'form-status';
     submitBtn.disabled = true;
 
-    currentCode = commitCode();
-    stubCode.textContent = currentCode;
-
     const payload = {
       firstName: form.firstName.value.trim(),
       lastName: form.lastName.value.trim(),
@@ -972,29 +957,49 @@
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
       branch: form.branch.value,
-      skills: getSelectedSkills(),
-      confirmationCode: currentCode
+      skills: getSelectedSkills()
     };
 
-    setTimeout(function(){
-      submitBtn.disabled = false;
-      statusEl.textContent = '';
-      showSuccess(payload);
-    }, 700);
+    fetch(API_BASE + '/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(body){
+          return { ok: res.ok, status: res.status, body: body };
+        });
+      })
+      .then(function(result){
+        submitBtn.disabled = false;
+        if(result.ok){
+          statusEl.textContent = '';
+          statusEl.className = 'form-status';
+          stubCode.textContent = result.body.confirmationCode;
+          showSuccess(result.body);
+        } else {
+          statusEl.textContent = extractErrorMessage(result.status, result.body);
+          statusEl.className = 'form-status error';
+        }
+      })
+      .catch(function(){
+        submitBtn.disabled = false;
+        statusEl.textContent = 'Could not reach the server. Please try again.';
+        statusEl.className = 'form-status error';
+      });
   });
 
-  function showSuccess(payload){
+  function showSuccess(data){
     const overlay = document.getElementById('success-overlay');
     const detail = document.getElementById('success-detail');
-    detail.textContent = 'Registration ' + payload.confirmationCode + ' received for ' + payload.firstName + ' ' + payload.lastName +'.';
+    detail.textContent = 'Registration ' + data.confirmationCode + ' received for ' + data.firstName + ' ' + data.lastName + '.';
     overlay.classList.add('visible');
   }
 
   document.getElementById('success-close').addEventListener('click', function(){
     document.getElementById('success-overlay').classList.remove('visible');
     form.reset();
-    currentCode = peekCode();
-    stubCode.textContent = currentCode;
+    stubCode.textContent = 'Pending';
     updateStub();
     form.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
   });

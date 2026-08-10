@@ -1,16 +1,23 @@
+import os
 from contextlib import asynccontextmanager
 from datetime import date
 from enum import Enum
 from typing import Annotated, List
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field as SQLField, Relationship, Session, SQLModel, create_engine, select
 
-DATABASE_URL = "sqlite:///./registrations.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")]
+
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 
 class Gender(str, Enum):
@@ -107,7 +114,7 @@ app = FastAPI(title="JEC Registration API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -187,4 +194,3 @@ def get_registration(confirmation_code: str, session: SessionDep):
     if not reg:
         raise HTTPException(404, "Registration not found")
     return to_out(reg)
-

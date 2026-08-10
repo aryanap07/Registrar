@@ -1,4 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlmodel
-pydantic[email]

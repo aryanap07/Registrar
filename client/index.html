@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jabalpur Engineering College — Student Registration</title>
+<title>Jabalpur Engineering College (1947) — Student Registration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -626,7 +626,7 @@
   <div class="pass">
     <div class="main-panel">
       <div class="brand-row">
-        <span class="brand-mark">JABALPUR ENGINEERING COLLEGE</span>
+        <span class="brand-mark">JABALPUR ENGINEERING COLLEGE (1947)</span>
         <span class="brand-mark" id="today-date"></span>
       </div>
       <h1>Student Registration</h1>
@@ -749,14 +749,14 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <h2>You're registered</h2>
-    <p id="success-detail">Your registration has been received. A confirmation has been sent to your email.</p>
+    <p id="success-detail">Your registration has been received.</p>
     <button type="button" id="success-close">Close</button>
   </div>
 </div>
 
 <script>
 (function(){
-  const API_BASE = window.JEC_API_BASE || 'http://localhost:8000';
+  const API_BASE = window.JEC_API_BASE || 'https://humble-space-eureka-wq5jr5vpgwx25gpp-8000.app.github.dev';
 
   const form = document.getElementById('reg-form');
   const statusEl = document.getElementById('form-status');

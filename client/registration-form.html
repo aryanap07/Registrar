@@ -986,7 +986,7 @@
   function showSuccess(payload){
     const overlay = document.getElementById('success-overlay');
     const detail = document.getElementById('success-detail');
-    detail.textContent = 'Registration ' + payload.confirmationCode + ' received for ' + payload.firstName + ' ' + payload.lastName + '. A confirmation has been sent to ' + (payload.email || 'your contact details') + '.';
+    detail.textContent = 'Registration ' + payload.confirmationCode + ' received for ' + payload.firstName + ' ' + payload.lastName +'.';
     overlay.classList.add('visible');
   }
 

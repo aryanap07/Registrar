@@ -261,6 +261,105 @@
     outline-offset: -2px;
   }
 
+  label .opt{
+    color: var(--ink-faint);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .skills-table{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--parchment-light);
+    overflow: hidden;
+  }
+
+  .skill-group-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 12px 18px 4px;
+    background: var(--parchment-light);
+  }
+
+  .skill-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+  }
+
+  .skill-row:not(:last-child){
+    border-bottom: 1px solid var(--line);
+  }
+
+  .skill-name{
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    min-width: 110px;
+  }
+
+  .level-group{
+    display: inline-flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .level-chip{ position: relative; }
+
+  .level-chip input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .level-chip label{
+    margin: 0;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--card);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  }
+
+  .level-chip label:hover{ border-color: var(--line-strong); }
+
+  .level-chip input:checked + label{
+    background: var(--moss);
+    border-color: var(--moss);
+    color: #fff;
+  }
+
+  .level-chip input:focus-visible + label{
+    outline: 2px solid var(--moss-dark);
+    outline-offset: 2px;
+  }
+
+  .field-hint{
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 8px;
+  }
+
   .submit-row{
     margin-top: 10px;
     display: flex;
@@ -595,6 +694,12 @@
           <span class="error-msg">Select a branch.</span>
         </div>
 
+        <div class="field" data-field="skills">
+          <label>Skills <span class="opt">optional</span></label>
+          <div class="skills-table" id="skills-table"></div>
+          <p class="field-hint">Tap a level to select it, tap again to remove.</p>
+        </div>
+
         <div class="submit-row">
           <button type="submit" id="submit-btn">
             Register
@@ -622,6 +727,10 @@
           <div class="stub-label">Contact</div>
           <div class="stub-value" id="stub-contact-email">—</div>
           <div class="stub-value" id="stub-contact-phone">—</div>
+        </div>
+        <div class="stub-item">
+          <div class="stub-label">Skills</div>
+          <div class="stub-value" id="stub-skills">—</div>
         </div>
       </div>
 
@@ -655,6 +764,7 @@
   const stubBranch = document.getElementById('stub-branch');
   const stubContactEmail = document.getElementById('stub-contact-email');
   const stubContactPhone = document.getElementById('stub-contact-phone');
+  const stubSkills = document.getElementById('stub-skills');
   const stubCode = document.getElementById('stub-code');
 
   const branchLabels = {
@@ -707,6 +817,75 @@
     this.value = this.value.replace(/\D/g, '').slice(0, 10);
   });
 
+  const SKILL_GROUPS = [
+    {
+      label: 'Technical',
+      skills: [
+        { id: 'python', name: 'Python' },
+        { id: 'sql', name: 'SQL' },
+        { id: 'htmlcss', name: 'HTML/CSS' },
+        { id: 'ccpp', name: 'C/C++' },
+        { id: 'arduino', name: 'Arduino/ESP32' }
+      ]
+    },
+    {
+      label: 'Soft Skills',
+      skills: [
+        { id: 'presentation', name: 'Presentation Skills' },
+        { id: 'publicspeaking', name: 'Public Speaking' },
+        { id: 'communication', name: 'Communication Skills' }
+      ]
+    }
+  ];
+
+  const LEVELS = ['Beginner', 'Intermediate'];
+
+  function renderSkillsTable(){
+    const table = document.getElementById('skills-table');
+    table.innerHTML = SKILL_GROUPS.map(group => {
+      const rows = group.skills.map(skill => {
+        const chips = LEVELS.map(level => {
+          const inputId = skill.id + '-' + level.toLowerCase();
+          return '<div class="level-chip">' +
+            '<input type="checkbox" id="' + inputId + '" name="skill-' + skill.id + '" value="' + level + '" />' +
+            '<label for="' + inputId + '">' + level + '</label>' +
+            '</div>';
+        }).join('');
+        return '<div class="skill-row" data-skill="' + skill.name + '">' +
+          '<span class="skill-name">' + skill.name + '</span>' +
+          '<div class="level-group" role="group" aria-label="' + skill.name + ' proficiency">' + chips + '</div>' +
+          '</div>';
+      }).join('');
+      return '<div class="skill-group-label">' + group.label + '</div>' + rows;
+    }).join('');
+  }
+
+  renderSkillsTable();
+
+  const skillRows = Array.from(form.querySelectorAll('.skill-row'));
+
+  skillRows.forEach(row => {
+    const checkboxes = Array.from(row.querySelectorAll('.level-chip input'));
+    checkboxes.forEach(box => {
+      box.addEventListener('change', function(){
+        if(this.checked){
+          checkboxes.forEach(other => {
+            if(other !== this) other.checked = false;
+          });
+        }
+        updateStub();
+      });
+    });
+  });
+
+  function getSelectedSkills(){
+    return skillRows.reduce((acc, row) => {
+      const checked = row.querySelector('.level-chip input:checked');
+      if(checked) acc.push({ skill: row.dataset.skill, level: checked.value });
+      return acc;
+    }, []);
+  }
+
   function updateStub(){
     const first = form.firstName.value.trim();
     const last = form.lastName.value.trim();
@@ -727,6 +906,11 @@
     const phone = form.phone.value.trim();
     stubContactEmail.textContent = email || '—';
     stubContactPhone.textContent = phone || '—';
+
+    const skills = getSelectedSkills();
+    stubSkills.textContent = skills.length
+      ? skills.map(s => s.skill + ' (' + s.level + ')').join(', ')
+      : '—';
   }
 
   form.addEventListener('input', updateStub);
@@ -788,6 +972,7 @@
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
       branch: form.branch.value,
+      skills: getSelectedSkills(),
       confirmationCode: currentCode
     };
 

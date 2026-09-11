@@ -1,4 +1,8 @@
+import json
 import os
+import urllib.error
+import urllib.parse
+import urllib.request
 from contextlib import asynccontextmanager
 from datetime import date
 from enum import Enum
@@ -6,7 +10,7 @@ from typing import Annotated, List
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,9 +22,27 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")]
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY")
+TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+
+def verify_turnstile(token: str, remote_ip: str | None = None) -> bool:
+    if not token or not TURNSTILE_SECRET_KEY:
+        return False
+    payload = {"secret": TURNSTILE_SECRET_KEY, "response": token}
+    if remote_ip:
+        payload["remoteip"] = remote_ip
+    data = urllib.parse.urlencode(payload).encode()
+    req = urllib.request.Request(TURNSTILE_VERIFY_URL, data=data, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode())
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return False
+    return bool(result.get("success"))
 
 
 class Gender(str, Enum):
@@ -80,6 +102,7 @@ class RegistrationIn(BaseModel):
     phone: str
     branch: Branch
     skills: List[SkillIn] = []
+    turnstileToken: str = Field(min_length=1)
 
     @field_validator("phone")
     @classmethod
@@ -152,7 +175,10 @@ def to_out(reg: Registration) -> RegistrationOut:
 
 
 @app.post("/api/register", response_model=RegistrationOut, status_code=201)
-def create_registration(payload: RegistrationIn, session: SessionDep):
+def create_registration(payload: RegistrationIn, request: Request, session: SessionDep):
+    if not verify_turnstile(payload.turnstileToken, request.client.host if request.client else None):
+        raise HTTPException(400, "Captcha verification failed")
+
     duplicate = session.exec(
         select(Registration).where(
             (Registration.email == payload.email) | (Registration.phone == payload.phone)

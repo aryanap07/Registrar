@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" defer></script>
 <style>
   :root{
     --parchment: #ECE4D2;
@@ -705,7 +705,7 @@
         </div>
 
         <div class="field" data-field="turnstile">
-          <div class="cf-turnstile" id="turnstile-widget" data-sitekey="0x4AAAAAAEwbLjmcaz4xT9IQ"></div>
+          <div id="turnstile-widget"></div>
         </div>
 
         <div class="submit-row">
@@ -769,6 +769,22 @@
   const form = document.getElementById('reg-form');
   const statusEl = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn');
+
+  let turnstileWidgetId = null;
+
+  window.onTurnstileLoad = function(){
+    turnstileWidgetId = turnstile.render('#turnstile-widget', {
+      sitekey: '0x4AAAAAAEwbLjmcaz4xT9IQ',
+      'error-callback': function(){
+        statusEl.textContent = 'Captcha failed to load. Please refresh the page.';
+        statusEl.className = 'form-status error';
+      },
+      'expired-callback': function(){
+        statusEl.textContent = 'Captcha expired, please verify again.';
+        statusEl.className = 'form-status error';
+      }
+    });
+  };
 
   const stubName = document.getElementById('stub-name');
   const stubBranch = document.getElementById('stub-branch');
@@ -930,13 +946,19 @@
   }
 
   function getTurnstileToken(){
-    if(typeof turnstile === 'undefined') return '';
-    return turnstile.getResponse('turnstile-widget') || '';
+    if(typeof turnstile === 'undefined' || turnstileWidgetId === null) return '';
+    try{
+      return turnstile.getResponse(turnstileWidgetId) || '';
+    }catch(e){
+      return '';
+    }
   }
 
   function resetTurnstile(){
-    if(typeof turnstile !== 'undefined'){
-      turnstile.reset('turnstile-widget');
+    if(typeof turnstile !== 'undefined' && turnstileWidgetId !== null){
+      try{
+        turnstile.reset(turnstileWidgetId);
+      }catch(e){}
     }
   }
 

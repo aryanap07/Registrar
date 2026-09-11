@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root{
     --parchment: #ECE4D2;
@@ -703,6 +704,10 @@
           <p class="field-hint">Tap a level to select it, tap again to remove.</p>
         </div>
 
+        <div class="field" data-field="turnstile">
+          <div class="cf-turnstile" id="turnstile-widget" data-sitekey="0x4AAAAAAEwbLjmcaz4xT9IQ"></div>
+        </div>
+
         <div class="submit-row">
           <button type="submit" id="submit-btn">
             Register
@@ -924,6 +929,17 @@
     return allValid;
   }
 
+  function getTurnstileToken(){
+    if(typeof turnstile === 'undefined') return '';
+    return turnstile.getResponse('turnstile-widget') || '';
+  }
+
+  function resetTurnstile(){
+    if(typeof turnstile !== 'undefined'){
+      turnstile.reset('turnstile-widget');
+    }
+  }
+
   function extractErrorMessage(status, body){
     if(status === 409 && body && typeof body.detail === 'string'){
       return body.detail;
@@ -948,6 +964,13 @@
       return;
     }
 
+    const turnstileToken = getTurnstileToken();
+    if(!turnstileToken){
+      statusEl.textContent = 'Please complete the captcha.';
+      statusEl.className = 'form-status error';
+      return;
+    }
+
     statusEl.textContent = 'Registering…';
     statusEl.className = 'form-status';
     submitBtn.disabled = true;
@@ -960,7 +983,8 @@
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
       branch: form.branch.value,
-      skills: getSelectedSkills()
+      skills: getSelectedSkills(),
+      turnstileToken: turnstileToken
     };
 
     fetch(API_BASE + '/api/register', {
@@ -975,6 +999,7 @@
       })
       .then(function(result){
         submitBtn.disabled = false;
+        resetTurnstile();
         if(result.ok){
           statusEl.textContent = '';
           statusEl.className = 'form-status';
@@ -987,6 +1012,7 @@
       })
       .catch(function(){
         submitBtn.disabled = false;
+        resetTurnstile();
         statusEl.textContent = 'Could not reach the server. Please try again.';
         statusEl.className = 'form-status error';
       });
@@ -1004,6 +1030,7 @@
     form.reset();
     stubCode.textContent = 'Pending';
     updateStub();
+    resetTurnstile();
     form.querySelectorAll('.field.invalid').forEach(f => f.classList.remove('invalid'));
   });
 
